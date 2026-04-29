@@ -34,7 +34,6 @@ export default function Home() {
 
   return (
     <>
-      <Header />
       {isDone ? (
         <p>No more restaurants left</p>
       ) : (
