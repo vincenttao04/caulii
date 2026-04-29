@@ -9,5 +9,13 @@ type SwipeDeckProps = {
 export default function SwipeDeck({ restaurants, onSwipe }: SwipeDeckProps) {
   const current = restaurants[0];
 
-  return <RestaurantCard restaurant={current} />;
+  return (
+    <div className="flex flex-col">
+      <RestaurantCard restaurant={current} />
+      <div>
+        <button onClick={() => onSwipe(current, "left")}>No</button>
+        <button onClick={() => onSwipe(current, "right")}>Yes</button>
+      </div>
+    </div>
+  );
 }
