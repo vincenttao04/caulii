@@ -8,9 +8,13 @@ import { Restaurant, SwipeDirection, SwipeRecord } from "@/types";
 import { useState } from "react";
 
 export default function Home() {
+  const [mounted, setMounted] = useState(true);
   const [restaurants, setRestaurants] = useState<Restaurant[]>(mockRestaurants);
   const [liked, setLiked] = useState<Restaurant[]>([]);
   const [disliked, setDisliked] = useState<Restaurant[]>([]);
+  const [isDone, setIsDone] = useState(false);
+
+  if (!mounted) return null;
 
   const handleSwipe = (restaurant: Restaurant, direction: SwipeDirection) => {
     if (direction === "right") {
@@ -24,13 +28,21 @@ export default function Home() {
     console.log(`swiped ${direction} on ${restaurant.name}`);
   };
 
+  const handleEmpty = () => {
+    setIsDone(true);
+  };
+
   return (
     <>
       <Header />
-      {restaurants.length === 0 ? (
+      {isDone ? (
         <p>No more restaurants left</p>
       ) : (
-        <SwipeDeck restaurants={restaurants} onSwipe={handleSwipe} />
+        <SwipeDeck
+          restaurants={restaurants}
+          onSwipe={handleSwipe}
+          onEmpty={handleEmpty}
+        />
       )}
       <Footer />
     </>
