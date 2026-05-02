@@ -12,9 +12,13 @@ export default function Home() {
   const [liked, setLiked] = useState<Restaurant[]>([]);
   const [disliked, setDisliked] = useState<Restaurant[]>([]);
   const [isDone, setIsDone] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   const fetchRestaurants = async () => {
     try {
+      setLoading(true);
+      setError(null);
       const { lat, lng } = MOCK_LOCATION;
       const res = await fetch(`/api?lat=${lat}&lng=${lng}&radius=1000`);
       if (!res.ok) throw new Error("Failed to fetch restaurants");
@@ -22,7 +26,10 @@ export default function Home() {
       setRestaurants(data.restaurants);
       console.log(data);
     } catch (e) {
+      setError("Failed to load restaurants: " + e);
       console.error(e);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -45,6 +52,9 @@ export default function Home() {
   const handleEmpty = () => {
     setIsDone(true);
   };
+
+  if (loading) return <p>Loading restaurants...</p>;
+  if (!error) return <p>{error}</p>;
 
   return (
     <>
