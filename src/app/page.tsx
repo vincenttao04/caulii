@@ -1,20 +1,34 @@
 "use client";
 
-import Header from "@/components/global/Header";
-import Footer from "@/components/global/Footer";
+import { useEffect, useState } from "react";
 import SwipeDeck from "@/components/swipe/SwipeDeck";
-import { mockRestaurants } from "@/lib/mockData";
+// import { mockRestaurants } from "@/lib/mockData";
 import { Restaurant, SwipeDirection, SwipeRecord } from "@/types";
-import { useState } from "react";
+
+const MOCK_LOCATION = { lat: -36.8485, lng: 174.7633 };
 
 export default function Home() {
-  const [mounted, setMounted] = useState(true);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>(mockRestaurants);
+  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
   const [liked, setLiked] = useState<Restaurant[]>([]);
   const [disliked, setDisliked] = useState<Restaurant[]>([]);
   const [isDone, setIsDone] = useState(false);
 
-  if (!mounted) return null;
+  const fetchRestaurants = async () => {
+    try {
+      const { lat, lng } = MOCK_LOCATION;
+      const res = await fetch(`/api?lat=${lat}&lng=${lng}&radius=1000`);
+      if (!res.ok) throw new Error("Failed to fetch restaurants");
+      const data = await res.json();
+      setRestaurants(data.restaurants);
+      console.log(data);
+    } catch (e) {
+      console.error(e);
+    }
+  };
+
+  useEffect(() => {
+    fetchRestaurants();
+  }, []);
 
   const handleSwipe = (restaurant: Restaurant, direction: SwipeDirection) => {
     if (direction === "right") {
@@ -43,7 +57,6 @@ export default function Home() {
           onEmpty={handleEmpty}
         />
       )}
-      <Footer />
     </>
   );
 }
