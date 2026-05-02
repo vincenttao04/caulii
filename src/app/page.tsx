@@ -1,41 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SwipeDeck from "@/components/swipe/SwipeDeck";
 // import { mockRestaurants } from "@/lib/mockData";
+import { useRestaurants } from "@/hooks/useRestaurants";
 import { Restaurant, SwipeDirection, SwipeRecord } from "@/types";
 
-const MOCK_LOCATION = { lat: -36.8485, lng: 174.7633 };
-
 export default function Home() {
-  const [restaurants, setRestaurants] = useState<Restaurant[]>([]);
+  const { restaurants, setRestaurants, loading, error, refetch } =
+    useRestaurants();
   const [liked, setLiked] = useState<Restaurant[]>([]);
   const [disliked, setDisliked] = useState<Restaurant[]>([]);
   const [isDone, setIsDone] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchRestaurants = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      const { lat, lng } = MOCK_LOCATION;
-      const res = await fetch(`/api?lat=${lat}&lng=${lng}&radius=1000`);
-      if (!res.ok) throw new Error("Failed to fetch restaurants");
-      const data = await res.json();
-      setRestaurants(data.restaurants);
-      console.log(data);
-    } catch (e) {
-      setError("Failed to load restaurants: " + e);
-      console.error(e);
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchRestaurants();
-  }, []);
 
   const handleSwipe = (restaurant: Restaurant, direction: SwipeDirection) => {
     if (direction === "right") {
@@ -44,7 +20,7 @@ export default function Home() {
       setDisliked((prev) => [...prev, restaurant]);
     }
 
-    setRestaurants((prev) => prev.filter((r) => r.id !== restaurant.id));
+    setRestaurants((prev: Restaurant[]) => prev.filter((r) => r.id !== restaurant.id));
 
     console.log(`swiped ${direction} on ${restaurant.name}`);
   };
@@ -54,7 +30,7 @@ export default function Home() {
   };
 
   if (loading) return <p>Loading restaurants...</p>;
-  if (!error) return <p>{error}</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <>
