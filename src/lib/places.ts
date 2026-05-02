@@ -43,7 +43,7 @@ function mapToRestaurant(place: GooglePlace): Restaurant {
       lat: place.location.latitude,
       lng: place.location.longitude,
     },
-    rating: place.rating ?? 0,
+    rating: place.rating ?? null,
     totalRatings: place.userRatingCount ?? null,
     priceLevel: place.priceLevel ?? null,
     cuisine: place.types?.join(", ") ?? "",

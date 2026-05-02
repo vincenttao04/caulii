@@ -13,7 +13,7 @@ export type Restaurant = {
     lat: number;
     lng: number;
   };
-  rating: number;
+  rating: number | null;
   totalRatings: number | null;
   priceLevel: PriceLevel | null;
   cuisine: string;
