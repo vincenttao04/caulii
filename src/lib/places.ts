@@ -1,4 +1,4 @@
-import { Restaurant } from "@/types";
+import { Restaurant, PriceLevel } from "@/types";
 
 const PLACES_API_URL = "https://places.googleapis.com/v1/places:searchNearby";
 
@@ -9,6 +9,7 @@ const FIELD_MASK = [
   "places.location",
   "places.rating",
   "places.userRatingCount",
+  "places.priceLevel",
   "places.types",
   "places.photos",
   "places.currentOpeningHours",
@@ -22,6 +23,7 @@ type GooglePlace = {
   location: { latitude: number; longitude: number };
   rating?: number;
   userRatingCount?: number;
+  priceLevel?: PriceLevel;
   types?: string[];
   photos?: { name: string }[];
   currentOpeningHours?: { openNow: boolean };
@@ -43,6 +45,7 @@ function mapToRestaurant(place: GooglePlace): Restaurant {
     },
     rating: place.rating ?? 0,
     totalRatings: place.userRatingCount ?? null,
+    priceLevel: place.priceLevel ?? null,
     cuisine: place.types?.join(", ") ?? "",
     photoUrl: place.photos?.[0]?.name
       ? buildPhotoUrl(place.photos[0].name)

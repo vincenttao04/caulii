@@ -1,3 +1,10 @@
+export type PriceLevel =
+  | "PRICE_LEVEL_FREE"
+  | "PRICE_LEVEL_INEXPENSIVE"
+  | "PRICE_LEVEL_MODERATE"
+  | "PRICE_LEVEL_EXPENSIVE"
+  | "PRICE_LEVEL_VERY_EXPENSIVE";
+
 export type Restaurant = {
   id: string;
   name: string;
@@ -8,11 +15,11 @@ export type Restaurant = {
   };
   rating: number;
   totalRatings: number | null;
+  priceLevel: PriceLevel | null;
   cuisine: string;
   photoUrl: string | null;
   openNow: boolean | null;
   googleMapsUri: string | null;
-  // priceLevel: 1 | 2 | 3 | 4;
 };
 
 export type SwipeDirection = "left" | "right";
