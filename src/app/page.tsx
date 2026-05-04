@@ -1,20 +1,17 @@
 "use client";
 
-import Header from "@/components/global/Header";
-import Footer from "@/components/global/Footer";
-import SwipeDeck from "@/components/swipe/SwipeDeck";
-import { mockRestaurants } from "@/lib/mockData";
-import { Restaurant, SwipeDirection, SwipeRecord } from "@/types";
 import { useState } from "react";
+import SwipeDeck from "@/components/swipe/SwipeDeck";
+// import { mockRestaurants } from "@/lib/mockData";
+import { useRestaurants } from "@/hooks/useRestaurants";
+import { Restaurant, SwipeDirection, SwipeRecord } from "@/types";
 
 export default function Home() {
-  const [mounted, setMounted] = useState(true);
-  const [restaurants, setRestaurants] = useState<Restaurant[]>(mockRestaurants);
+  const { restaurants, setRestaurants, loading, error, refetch } =
+    useRestaurants();
   const [liked, setLiked] = useState<Restaurant[]>([]);
   const [disliked, setDisliked] = useState<Restaurant[]>([]);
   const [isDone, setIsDone] = useState(false);
-
-  if (!mounted) return null;
 
   const handleSwipe = (restaurant: Restaurant, direction: SwipeDirection) => {
     if (direction === "right") {
@@ -23,7 +20,7 @@ export default function Home() {
       setDisliked((prev) => [...prev, restaurant]);
     }
 
-    setRestaurants((prev) => prev.filter((r) => r.id !== restaurant.id));
+    setRestaurants((prev: Restaurant[]) => prev.filter((r) => r.id !== restaurant.id));
 
     console.log(`swiped ${direction} on ${restaurant.name}`);
   };
@@ -31,6 +28,9 @@ export default function Home() {
   const handleEmpty = () => {
     setIsDone(true);
   };
+
+  if (loading) return <p>Loading restaurants...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
     <>
@@ -43,7 +43,6 @@ export default function Home() {
           onEmpty={handleEmpty}
         />
       )}
-      <Footer />
     </>
   );
 }
