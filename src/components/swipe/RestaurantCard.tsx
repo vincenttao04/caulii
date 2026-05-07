@@ -5,14 +5,18 @@ type RestaurantCardProps = {
   restaurant: Restaurant;
 };
 
+const PRICE_MAP: Record<string, string> = {
+  PRICE_LEVEL_FREE: "Free",
+  PRICE_LEVEL_INEXPENSIVE: "$",
+  PRICE_LEVEL_MODERATE: "$$",
+  PRICE_LEVEL_EXPENSIVE: "$$$",
+  PRICE_LEVEL_VERY_EXPENSIVE: "$$$$",
+};
+
 export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
   return (
     <div className="border border-gray-300 p-4">
       <h1>{restaurant.name}</h1>
-
-      <p>
-        <strong>ID:</strong> {restaurant.id}
-      </p>
 
       <p>
         <strong>Cuisine:</strong> {restaurant.cuisine || "N/A"}
@@ -24,16 +28,12 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
       </p>
 
       <p>
-        <strong>Price Level:</strong> {restaurant.priceLevel ?? "N/A"}
+        <strong>Price Level:</strong>
+        {PRICE_MAP[restaurant.priceLevel ?? ""] ?? "N/A"}
       </p>
 
       <p>
         <strong>Address:</strong> {restaurant.address ?? "N/A"}
-      </p>
-
-      <p>
-        <strong>Location:</strong> {restaurant.location.lat},
-        {restaurant.location.lng}
       </p>
 
       <p>
@@ -56,9 +56,16 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
         )}
       </p>
 
+      {/* <p>
+        <strong>ID:</strong> {restaurant.id}
+      </p>
+      <p>
+        <strong>Location:</strong> {restaurant.location.lat},
+        {restaurant.location.lng}
+      </p>
       <p>
         <strong>Photo URL:</strong> {restaurant.photoUrl ?? "N/A"}
-      </p>
+      </p> */}
     </div>
   );
 }
