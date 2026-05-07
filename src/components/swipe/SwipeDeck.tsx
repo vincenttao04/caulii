@@ -14,6 +14,7 @@ export default function SwipeDeck({
   onEmpty,
 }: SwipeDeckProps) {
   const current = restaurants[0];
+  const next = restaurants[1];
 
   useEffect(() => {
     if (!current) onEmpty();
@@ -23,10 +24,30 @@ export default function SwipeDeck({
 
   return (
     <div className="flex flex-col w-full gap-4">
-      <RestaurantCard restaurant={current} />
+      <div className="relative w-full h-105">
+        {next && (
+          <div className="absolute inset-0 z-0 opacity-20 text-red-500">
+            <RestaurantCard restaurant={next} />
+          </div>
+        )}
+        <div className="absolute inset-0 z-10">
+          <RestaurantCard restaurant={current} />
+        </div>
+      </div>
+
       <div className="flex justify-between">
-        <button onClick={() => onSwipe(current, "left")}>No</button>
-        <button onClick={() => onSwipe(current, "right")}>Yes</button>
+        <button
+          className="border border-gray-300 p-4"
+          onClick={() => onSwipe(current, "left")}
+        >
+          No
+        </button>
+        <button
+          className="border border-gray-300 p-4"
+          onClick={() => onSwipe(current, "right")}
+        >
+          Yes
+        </button>
       </div>
     </div>
   );
