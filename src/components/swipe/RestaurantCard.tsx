@@ -30,7 +30,8 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
       <h1>{restaurant.name}</h1>
 
       <p>
-        <strong>Cuisine:</strong> {restaurant.cuisine || "N/A"}
+        <strong>Cuisine:</strong>
+        {cuisine || "N/A"}
       </p>
 
       <p>

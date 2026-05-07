@@ -16,7 +16,7 @@ export type Restaurant = {
   rating: number | null;
   totalRatings: number | null;
   priceLevel: PriceLevel | null;
-  cuisine: string;
+  cuisine: string[];
   photoUrl: string | null;
   openNow: boolean | null;
   googleMapsUri: string | null;
