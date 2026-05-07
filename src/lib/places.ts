@@ -46,7 +46,7 @@ function mapToRestaurant(place: GooglePlace): Restaurant {
     rating: place.rating ?? null,
     totalRatings: place.userRatingCount ?? null,
     priceLevel: place.priceLevel ?? null,
-    cuisine: place.types?.join(", ") ?? "",
+    cuisine: place.types ?? [],
     photoUrl: place.photos?.[0]?.name
       ? buildPhotoUrl(place.photos[0].name)
       : null,
