@@ -22,9 +22,9 @@ export default function SwipeDeck({
   if (!current) return null;
 
   return (
-    <div className="flex flex-col">
+    <div className="flex flex-col w-full gap-4">
       <RestaurantCard restaurant={current} />
-      <div>
+      <div className="flex justify-between">
         <button onClick={() => onSwipe(current, "left")}>No</button>
         <button onClick={() => onSwipe(current, "right")}>Yes</button>
       </div>

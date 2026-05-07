@@ -7,7 +7,7 @@ type RestaurantCardProps = {
 
 export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
   return (
-    <div>
+    <div className="border border-gray-300 p-4">
       <h1>{restaurant.name}</h1>
 
       <p>

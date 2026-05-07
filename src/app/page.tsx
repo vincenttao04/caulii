@@ -20,7 +20,9 @@ export default function Home() {
       setDisliked((prev) => [...prev, restaurant]);
     }
 
-    setRestaurants((prev: Restaurant[]) => prev.filter((r) => r.id !== restaurant.id));
+    setRestaurants((prev: Restaurant[]) =>
+      prev.filter((r) => r.id !== restaurant.id),
+    );
 
     console.log(`swiped ${direction} on ${restaurant.name}`);
   };
@@ -31,9 +33,10 @@ export default function Home() {
 
   if (loading) return <p>Loading restaurants...</p>;
   if (error) return <p>{error}</p>;
+  if (isDone) return <p>No more restaurants</p>;
 
   return (
-    <>
+    <div className="flex flex-col items-center w-full max-w-lg mx-auto p-4 border border-gray-300">
       {isDone ? (
         <p>No more restaurants left</p>
       ) : (
@@ -43,7 +46,7 @@ export default function Home() {
           onEmpty={handleEmpty}
         />
       )}
-    </>
+    </div>
   );
 }
 
