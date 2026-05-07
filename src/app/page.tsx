@@ -33,7 +33,15 @@ export default function Home() {
 
   if (loading) return <p>Loading restaurants...</p>;
   if (error) return <p>{error}</p>;
-  if (isDone) return <p>No more restaurants</p>;
+  if (isDone)
+    return (
+      <div className="flex flex-col">
+        <p>No more restaurants</p>
+        <p>
+          Liked: {liked.length} || Disliked: {disliked.length}
+        </p>
+      </div>
+    );
 
   return (
     <div className="flex flex-col items-center w-full max-w-lg mx-auto p-4 border border-gray-300">
