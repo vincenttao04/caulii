@@ -1,6 +1,8 @@
-import { Restaurant, SwipeDirection } from "@/types";
-import RestaurantCard from "./RestaurantCard";
+"use client";
+
 import { useEffect } from "react";
+import RestaurantCard from "./RestaurantCard";
+import { Restaurant, SwipeDirection } from "@/types";
 
 type SwipeDeckProps = {
   restaurants: Restaurant[];
@@ -23,30 +25,60 @@ export default function SwipeDeck({
   if (!current) return null;
 
   return (
-    <div className="flex flex-col w-full gap-4">
-      <div className="relative w-full h-105">
+    <div className="flex flex-col flex-1 items-center gap-6 px-5 pt-6 pb-8">
+      {/* Header */}
+      <div className="flex w-full items-center justify-between">
+        <span className="font-display text-xl" style={{ color: "var(--fg)" }}>
+          Caulii
+        </span>
+        <span
+          className="text-xs tracking-wide"
+          style={{ color: "var(--fg-muted)" }}
+        >
+          {restaurants.length} left
+        </span>
+      </div>
+
+      {/* Card stack */}
+      <div className="relative w-full h-[620px]">
+        {/* Next card */}
         {next && (
-          <div className="absolute inset-0 z-0 opacity-20 text-red-500">
+          <div className="absolute inset-0 z-0 pointer-events-none">
             <RestaurantCard restaurant={next} />
           </div>
         )}
-        <div className="absolute inset-0 z-10">
+        {/* Current card */}
+        <div className="relative w-full h-full z-10">
           <RestaurantCard restaurant={current} />
         </div>
       </div>
 
-      <div className="flex justify-between">
+      {/* Buttons */}
+      <div className="flex items-center justify-between w-full">
+        {/* Dislike */}
         <button
-          className="border border-gray-300 p-4"
           onClick={() => onSwipe(current, "left")}
+          className="w-16 h-16 cursor-pointer rounded-full flex items-center justify-center text-xl transition-transform duration-150 hover:scale-110 active:scale-95"
+          style={{
+            background: "var(--bg-card)",
+            border: "1.5px solid var(--border)",
+            color: "var(--accent)",
+          }}
         >
-          No
+          ✕
         </button>
+
+        {/* Like */}
         <button
-          className="border border-gray-300 p-4"
           onClick={() => onSwipe(current, "right")}
+          className="w-16 h-16 cursor-pointer rounded-full flex items-center justify-center text-xl transition-transform duration-150 hover:scale-110 active:scale-95"
+          style={{
+            background: "var(--bg-card)",
+            border: "1.5px solid var(--border)",
+            color: "var(--accent-green)",
+          }}
         >
-          Yes
+          ♥
         </button>
       </div>
     </div>
