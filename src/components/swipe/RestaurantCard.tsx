@@ -53,6 +53,7 @@ export default function RestaurantCard({ restaurant }: RestaurantCardProps) {
       </div>
 
       {/* TODO: Gradient overlay for readable text */}
+      <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/95 via-black/55 to-transparent pointer-events-none" />
 
       {/* Open/Closed badge */}
       {restaurant.openNow !== null && (
