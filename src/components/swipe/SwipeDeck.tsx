@@ -53,8 +53,14 @@ function SwipeDeckContent({
     onSwipe(current, direction);
   };
 
-  const { handlers, getTransform, getTransition, swipe, isAnimating, isExiting } =
-    useSwipeGesture(handleSwipeComplete);
+  const {
+    handlers,
+    getTransform,
+    getTransition,
+    swipe,
+    isAnimating,
+    isExiting,
+  } = useSwipeGesture(handleSwipeComplete);
 
   return (
     <div className="flex flex-col flex-1 items-center gap-6 px-5 pt-6 pb-8">
@@ -75,10 +81,10 @@ function SwipeDeckContent({
       <div className="relative w-full h-155">
         {/* Next card */}
         {next && (
-          <div className="absolute inset-0 z-0 overflow-hidden rounded-3xl pointer-events-none">
+          <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
             <RestaurantCard restaurant={next} />
             <div
-              className="next-card-cover absolute inset-0 z-10 rounded-3xl"
+              className="next-card-cover absolute inset-0 rounded-3xl"
               style={{
                 opacity: isExiting ? 0 : 1,
                 transition: "opacity 220ms cubic-bezier(0.22, 1, 0.36, 1)",
@@ -86,6 +92,7 @@ function SwipeDeckContent({
             />
           </div>
         )}
+
         {/* Current card */}
         <div
           className="relative w-full h-full z-10 cursor-grab touch-none select-none active:cursor-grabbing"
