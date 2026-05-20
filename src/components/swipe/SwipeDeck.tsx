@@ -53,7 +53,7 @@ function SwipeDeckContent({
     onSwipe(current, direction);
   };
 
-  const { handlers, getTransform, getTransition, swipe, isAnimating } =
+  const { handlers, getTransform, getTransition, swipe, isAnimating, isExiting } =
     useSwipeGesture(handleSwipeComplete);
 
   return (
@@ -77,6 +77,13 @@ function SwipeDeckContent({
         {next && (
           <div className="absolute inset-0 z-0 pointer-events-none">
             <RestaurantCard restaurant={next} />
+            <div
+              className="next-card-cover absolute inset-0 rounded-3xl"
+              style={{
+                opacity: isExiting ? 0 : 1,
+                transition: "opacity 220ms cubic-bezier(0.22, 1, 0.36, 1)",
+              }}
+            />
           </div>
         )}
         {/* Current card */}

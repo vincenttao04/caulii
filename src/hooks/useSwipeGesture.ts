@@ -27,6 +27,7 @@ export type UseSwipeGestureReturn = {
   getTransition: () => string;
   swipe: (direction: "left" | "right") => void;
   isAnimating: boolean;
+  isExiting: boolean;
 };
 
 export function useSwipeGesture(
@@ -182,5 +183,6 @@ export function useSwipeGesture(
     getTransition,
     swipe: finishSwipe,
     isAnimating: phase === "snapping" || phase === "exiting",
+    isExiting: phase === "exiting",
   };
 }
