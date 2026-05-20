@@ -1,8 +1,11 @@
-import { useRef, useState, useCallback } from "react";
+import { PointerEvent, useCallback, useEffect, useRef, useState } from "react";
 
-const SWIPE_THRESHOLD = 100;
-const MAX_ROTATION = 15;
-const VERTICAL_DAMPING = 0.1;
+const SWIPE_THRESHOLD = 110;
+const EXIT_DISTANCE = 520;
+const EXIT_DURATION_MS = 220;
+const SNAP_DURATION_MS = 240;
+const MAX_ROTATION = 10;
+const MAX_DRAG_DISTANCE = 220;
 
 export type SwipeState = {
   x: number;
@@ -10,14 +13,20 @@ export type SwipeState = {
   isActive: boolean;
 };
 
+type AnimationPhase = "idle" | "dragging" | "snapping" | "exiting";
+
 export type UseSwipeGestureReturn = {
   swipeState: SwipeState;
   handlers: {
-    onMouseDown: (e: React.MouseEvent) => void;
-    onTouchStart: (e: React.TouchEvent) => void;
+    onPointerDown: (event: PointerEvent<HTMLDivElement>) => void;
+    onPointerMove: (event: PointerEvent<HTMLDivElement>) => void;
+    onPointerUp: (event: PointerEvent<HTMLDivElement>) => void;
+    onPointerCancel: (event: PointerEvent<HTMLDivElement>) => void;
   };
   getTransform: () => string;
-  isResetting: boolean;
+  getTransition: () => string;
+  swipe: (direction: "left" | "right") => void;
+  isAnimating: boolean;
 };
 
 export function useSwipeGesture(
@@ -29,119 +38,149 @@ export function useSwipeGesture(
     isActive: false,
   });
 
-  const [isResetting, setIsResetting] = useState(false);
+  const [phase, setPhase] = useState<AnimationPhase>("idle");
+  const startXRef = useRef(0);
+  const activePointerIdRef = useRef<number | null>(null);
+  const latestXRef = useRef(0);
+  const timeoutRef = useRef<number | null>(null);
 
-  const startPosRef = useRef<{ x: number; y: number } | null>(null);
-  const isDraggingRef = useRef(false);
+  const clearAnimationTimeout = useCallback(() => {
+    if (!timeoutRef.current) return;
 
-  const handlePointerMove = useCallback((clientX: number, clientY: number) => {
-    if (!startPosRef.current || !isDraggingRef.current) return;
+    window.clearTimeout(timeoutRef.current);
+    timeoutRef.current = null;
+  }, []);
 
-    const deltaX = clientX - startPosRef.current.x;
-    const deltaY = clientY - startPosRef.current.y;
+  useEffect(() => clearAnimationTimeout, [clearAnimationTimeout]);
 
-    // Apply damping to vertical movement
-    const constrainedY = deltaY * VERTICAL_DAMPING;
-
+  const setControlledPosition = useCallback((x: number, isActive: boolean) => {
+    latestXRef.current = x;
     setSwipeState({
-      x: deltaX,
-      y: constrainedY,
-      isActive: true,
+      x,
+      y: 0,
+      isActive,
     });
   }, []);
 
-  const handlePointerUp = useCallback(() => {
-    if (!isDraggingRef.current) return;
+  const snapBack = useCallback(() => {
+    setPhase("snapping");
+    setControlledPosition(0, false);
 
-    isDraggingRef.current = false;
+    clearAnimationTimeout();
+    timeoutRef.current = window.setTimeout(() => {
+      setPhase("idle");
+      timeoutRef.current = null;
+    }, SNAP_DURATION_MS);
+  }, [clearAnimationTimeout, setControlledPosition]);
 
-    // Determine if swipe threshold was reached
-    if (Math.abs(swipeState.x) > SWIPE_THRESHOLD) {
-      setIsResetting(true);
-      onSwipeComplete(swipeState.x > 0 ? "right" : "left");
+  const finishSwipe = useCallback(
+    (direction: "left" | "right") => {
+      const exitX = direction === "right" ? EXIT_DISTANCE : -EXIT_DISTANCE;
 
-      // Reset after animation
-      setTimeout(() => {
-        setSwipeState({ x: 0, y: 0, isActive: false });
-        setIsResetting(false);
-      }, 300);
-    } else {
-      // Snap back to center
-      setIsResetting(true);
-      setTimeout(() => {
-        setSwipeState({ x: 0, y: 0, isActive: false });
-        setIsResetting(false);
-      }, 300);
-    }
-  }, [swipeState.x, onSwipeComplete]);
+      setPhase("exiting");
+      setControlledPosition(exitX, false);
 
-  const onMouseDown = useCallback(
-    (e: React.MouseEvent) => {
-      if (isResetting) return;
-
-      isDraggingRef.current = true;
-      startPosRef.current = { x: e.clientX, y: e.clientY };
-
-      const handleMove = (moveEvent: MouseEvent) => {
-        handlePointerMove(moveEvent.clientX, moveEvent.clientY);
-      };
-
-      const handleUp = () => {
-        document.removeEventListener("mousemove", handleMove);
-        document.removeEventListener("mouseup", handleUp);
-        handlePointerUp();
-      };
-
-      document.addEventListener("mousemove", handleMove);
-      document.addEventListener("mouseup", handleUp);
+      clearAnimationTimeout();
+      timeoutRef.current = window.setTimeout(() => {
+        onSwipeComplete(direction);
+        timeoutRef.current = null;
+      }, EXIT_DURATION_MS);
     },
-    [handlePointerMove, handlePointerUp, isResetting],
+    [clearAnimationTimeout, onSwipeComplete, setControlledPosition],
   );
 
-  const onTouchStart = useCallback(
-    (e: React.TouchEvent) => {
-      if (isResetting || e.touches.length !== 1) return;
+  const endGesture = useCallback(() => {
+    const finalX = latestXRef.current;
 
-      const touch = e.touches[0];
-      isDraggingRef.current = true;
-      startPosRef.current = { x: touch.clientX, y: touch.clientY };
+    activePointerIdRef.current = null;
 
-      const handleMove = (moveEvent: TouchEvent) => {
-        if (moveEvent.touches.length === 1) {
-          handlePointerMove(
-            moveEvent.touches[0].clientX,
-            moveEvent.touches[0].clientY,
-          );
-        }
-      };
+    if (Math.abs(finalX) >= SWIPE_THRESHOLD) {
+      finishSwipe(finalX > 0 ? "right" : "left");
+      return;
+    }
 
-      const handleUp = () => {
-        document.removeEventListener("touchmove", handleMove);
-        document.removeEventListener("touchend", handleUp);
-        handlePointerUp();
-      };
+    snapBack();
+  }, [finishSwipe, snapBack]);
 
-      document.addEventListener("touchmove", handleMove, { passive: true });
-      document.addEventListener("touchend", handleUp);
+  const onPointerDown = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      if (phase === "exiting") return;
+
+      clearAnimationTimeout();
+      activePointerIdRef.current = event.pointerId;
+      startXRef.current = event.clientX;
+      latestXRef.current = 0;
+      setPhase("dragging");
+      event.currentTarget.setPointerCapture(event.pointerId);
     },
-    [handlePointerMove, handlePointerUp, isResetting],
+    [clearAnimationTimeout, phase],
+  );
+
+  const onPointerMove = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      if (activePointerIdRef.current !== event.pointerId || phase !== "dragging") {
+        return;
+      }
+
+      const rawX = event.clientX - startXRef.current;
+      const constrainedX = Math.max(
+        -MAX_DRAG_DISTANCE,
+        Math.min(MAX_DRAG_DISTANCE, rawX),
+      );
+
+      setControlledPosition(constrainedX, true);
+    },
+    [phase, setControlledPosition],
+  );
+
+  const onPointerUp = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      if (activePointerIdRef.current !== event.pointerId) return;
+
+      event.currentTarget.releasePointerCapture(event.pointerId);
+      endGesture();
+    },
+    [endGesture],
+  );
+
+  const onPointerCancel = useCallback(
+    (event: PointerEvent<HTMLDivElement>) => {
+      if (activePointerIdRef.current !== event.pointerId) return;
+
+      activePointerIdRef.current = null;
+      snapBack();
+    },
+    [snapBack],
   );
 
   const getTransform = useCallback((): string => {
-    const rotation = (swipeState.x / 100) * MAX_ROTATION;
+    const rotation = Math.max(
+      -MAX_ROTATION,
+      Math.min(MAX_ROTATION, (swipeState.x / SWIPE_THRESHOLD) * MAX_ROTATION),
+    );
     const x = swipeState.x;
-    const y = swipeState.y;
 
-    return `translate3d(${x}px, ${y}px, 0) rotateZ(${rotation}deg)`;
-  }, [swipeState.x, swipeState.y]);
+    return `translate3d(${x}px, 0, 0) rotateZ(${rotation}deg)`;
+  }, [swipeState.x]);
+
+  const getTransition = useCallback((): string => {
+    if (phase === "dragging") return "none";
+
+    const duration = phase === "exiting" ? EXIT_DURATION_MS : SNAP_DURATION_MS;
+    return `transform ${duration}ms cubic-bezier(0.22, 1, 0.36, 1)`;
+  }, [phase]);
 
   return {
     swipeState,
     handlers: {
-      onMouseDown,
-      onTouchStart,
+      onPointerDown,
+      onPointerMove,
+      onPointerUp,
+      onPointerCancel,
     },
     getTransform,
-    isResetting,
+    getTransition,
+    swipe: finishSwipe,
+    isAnimating: phase === "snapping" || phase === "exiting",
   };
 }
