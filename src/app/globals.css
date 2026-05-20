@@ -22,7 +22,15 @@
   }
 }
 
-body {
-  background-color: var(--bg);
-  color: var(--fg);
+@layer base {
+  body {
+    background-color: var(--bg);
+    color: var(--fg);
+  }
+}
+
+@layer utilities {
+  .font-display {
+    font-family: Georgia, serif;
+  }
 }
