@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import RestaurantCard from "./RestaurantCard";
 import { Restaurant, SwipeDirection } from "@/types";
+import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 
 type SwipeDeckProps = {
   restaurants: Restaurant[];
@@ -17,6 +18,15 @@ export default function SwipeDeck({
 }: SwipeDeckProps) {
   const current = restaurants[0];
   const next = restaurants[1];
+
+  const handleSwipeComplete = (direction: SwipeDirection) => {
+    if (current) {
+      onSwipe(current, direction);
+    }
+  };
+
+  const { handlers, getTransform, isResetting } =
+    useSwipeGesture(handleSwipeComplete);
 
   useEffect(() => {
     if (!current) onEmpty();
@@ -48,7 +58,17 @@ export default function SwipeDeck({
           </div>
         )}
         {/* Current card */}
-        <div className="relative w-full h-full z-10">
+        <div
+          className="relative w-full h-full z-10 cursor-grab active:cursor-grabbing"
+          style={{
+            transform: getTransform(),
+            transition: isResetting
+              ? "transform 300ms cubic-bezier(0.25, 0.46, 0.45, 0.94)"
+              : "none",
+          }}
+          onMouseDown={handlers.onMouseDown}
+          onTouchStart={handlers.onTouchStart}
+        >
           <RestaurantCard restaurant={current} />
         </div>
       </div>
