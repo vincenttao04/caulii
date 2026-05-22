@@ -1,11 +1,11 @@
 import { PointerEvent, useCallback, useEffect, useRef, useState } from "react";
 
-const SWIPE_THRESHOLD = 130;
-const EXIT_DISTANCE = 520;
+const SWIPE_THRESHOLD = 140;
+const EXIT_DISTANCE = 500;
 const EXIT_DURATION_MS = 380;
 const SNAP_DURATION_MS = 320;
 const MAX_ROTATION = 7;
-const MAX_DRAG_DISTANCE = 260;
+const MAX_DRAG_DISTANCE = 200;
 const FADE_DURATION_MS = 120;
 
 export type SwipeState = {
