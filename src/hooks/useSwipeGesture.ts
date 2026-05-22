@@ -2,9 +2,9 @@ import { PointerEvent, useCallback, useEffect, useRef, useState } from "react";
 
 const SWIPE_THRESHOLD = 110;
 const EXIT_DISTANCE = 520;
-const EXIT_DURATION_MS = 220;
+const EXIT_DURATION_MS = 380;
 const SNAP_DURATION_MS = 240;
-const MAX_ROTATION = 10;
+const MAX_ROTATION = 7;
 const MAX_DRAG_DISTANCE = 220;
 
 export type SwipeState = {
@@ -119,7 +119,10 @@ export function useSwipeGesture(
 
   const onPointerMove = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
-      if (activePointerIdRef.current !== event.pointerId || phase !== "dragging") {
+      if (
+        activePointerIdRef.current !== event.pointerId ||
+        phase !== "dragging"
+      ) {
         return;
       }
 
