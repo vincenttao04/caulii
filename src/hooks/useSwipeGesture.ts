@@ -1,12 +1,12 @@
 import { PointerEvent, useCallback, useEffect, useRef, useState } from "react";
 
-const SWIPE_THRESHOLD = 110;
+const SWIPE_THRESHOLD = 130;
 const EXIT_DISTANCE = 520;
 const EXIT_DURATION_MS = 380;
-const EXIT_FADE_DURATION_MS = 120;
-const SNAP_DURATION_MS = 240;
+const SNAP_DURATION_MS = 320;
 const MAX_ROTATION = 7;
-const MAX_DRAG_DISTANCE = 220;
+const MAX_DRAG_DISTANCE = 260;
+const FADE_DURATION_MS = 120;
 
 export type SwipeState = {
   x: number;
@@ -14,12 +14,7 @@ export type SwipeState = {
   isActive: boolean;
 };
 
-type AnimationPhase =
-  | "idle"
-  | "dragging"
-  | "snapping"
-  | "exiting"
-  | "fadingOut";
+type AnimationPhase = "idle" | "dragging" | "snapping" | "exiting" | "fading";
 
 export type UseSwipeGestureReturn = {
   swipeState: SwipeState;
@@ -91,12 +86,12 @@ export function useSwipeGesture(
 
       clearAnimationTimeout();
       timeoutRef.current = window.setTimeout(() => {
-        setPhase("fadingOut");
+        setPhase("fading");
 
         timeoutRef.current = window.setTimeout(() => {
           onSwipeComplete(direction);
           timeoutRef.current = null;
-        }, EXIT_FADE_DURATION_MS);
+        }, FADE_DURATION_MS);
       }, EXIT_DURATION_MS);
     },
     [clearAnimationTimeout, onSwipeComplete, setControlledPosition],
@@ -117,7 +112,7 @@ export function useSwipeGesture(
 
   const onPointerDown = useCallback(
     (event: PointerEvent<HTMLDivElement>) => {
-      if (phase === "exiting" || phase === "fadingOut") return;
+      if (phase === "exiting" || phase === "fading") return;
 
       clearAnimationTimeout();
       activePointerIdRef.current = event.pointerId;
@@ -181,8 +176,8 @@ export function useSwipeGesture(
 
   const getTransition = useCallback((): string => {
     if (phase === "dragging") return "none";
-    if (phase === "fadingOut") {
-      return `opacity ${EXIT_FADE_DURATION_MS}ms ease`;
+    if (phase === "fading") {
+      return `opacity ${FADE_DURATION_MS}ms ease`;
     }
 
     const duration = phase === "exiting" ? EXIT_DURATION_MS : SNAP_DURATION_MS;
@@ -190,15 +185,15 @@ export function useSwipeGesture(
   }, [phase]);
 
   const getOpacity = useCallback((): number => {
-    return phase === "fadingOut" ? 0 : 1;
+    return phase === "fading" ? 0 : 1;
   }, [phase]);
 
   const getNextOpacity = useCallback((): number => {
-    return phase === "fadingOut" ? 1 : 0;
+    return phase === "fading" ? 1 : 0;
   }, [phase]);
 
   const getNextTransition = useCallback((): string => {
-    return `opacity ${EXIT_FADE_DURATION_MS}ms ease`;
+    return `opacity ${FADE_DURATION_MS}ms ease`;
   }, []);
 
   return {
@@ -216,6 +211,6 @@ export function useSwipeGesture(
     getNextTransition,
     swipe: finishSwipe,
     isAnimating:
-      phase === "snapping" || phase === "exiting" || phase === "fadingOut",
+      phase === "snapping" || phase === "exiting" || phase === "fading",
   };
 }
