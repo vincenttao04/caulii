@@ -33,10 +33,4 @@
   .font-display {
     font-family: Georgia, serif;
   }
-
-  .next-card-cover {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: inherit;
-  }
 }

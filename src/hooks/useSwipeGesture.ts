@@ -32,9 +32,10 @@ export type UseSwipeGestureReturn = {
   getTransform: () => string;
   getTransition: () => string;
   getOpacity: () => number;
+  getNextOpacity: () => number;
+  getNextTransition: () => string;
   swipe: (direction: "left" | "right") => void;
   isAnimating: boolean;
-  isExiting: boolean;
 };
 
 export function useSwipeGesture(
@@ -192,6 +193,14 @@ export function useSwipeGesture(
     return phase === "fadingOut" ? 0 : 1;
   }, [phase]);
 
+  const getNextOpacity = useCallback((): number => {
+    return phase === "fadingOut" ? 1 : 0;
+  }, [phase]);
+
+  const getNextTransition = useCallback((): string => {
+    return `opacity ${EXIT_FADE_DURATION_MS}ms ease`;
+  }, []);
+
   return {
     swipeState,
     handlers: {
@@ -203,9 +212,10 @@ export function useSwipeGesture(
     getTransform,
     getTransition,
     getOpacity,
+    getNextOpacity,
+    getNextTransition,
     swipe: finishSwipe,
     isAnimating:
       phase === "snapping" || phase === "exiting" || phase === "fadingOut",
-    isExiting: phase === "exiting" || phase === "fadingOut",
   };
 }
