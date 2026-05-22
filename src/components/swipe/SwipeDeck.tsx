@@ -57,6 +57,7 @@ function SwipeDeckContent({
     handlers,
     getTransform,
     getTransition,
+    getOpacity,
     swipe,
     isAnimating,
     isExiting,
@@ -97,9 +98,10 @@ function SwipeDeckContent({
         <div
           className="relative w-full h-full z-10 cursor-grab touch-none select-none active:cursor-grabbing"
           style={{
+            opacity: getOpacity(),
             transform: getTransform(),
             transition: getTransition(),
-            willChange: "transform",
+            willChange: "transform, opacity",
           }}
           onPointerDown={handlers.onPointerDown}
           onPointerMove={handlers.onPointerMove}
