@@ -3,6 +3,7 @@
 import { useEffect } from "react";
 import RestaurantCard from "./RestaurantCard";
 import { Restaurant, SwipeDirection } from "@/types";
+import { useSwipeGesture } from "@/hooks/useSwipeGesture";
 
 type SwipeDeckProps = {
   restaurants: Restaurant[];
@@ -25,6 +26,45 @@ export default function SwipeDeck({
   if (!current) return null;
 
   return (
+    <SwipeDeckContent
+      key={current.id}
+      current={current}
+      next={next}
+      restaurantsLeft={restaurants.length}
+      onSwipe={onSwipe}
+    />
+  );
+}
+
+type SwipeDeckContentProps = {
+  current: Restaurant;
+  next?: Restaurant;
+  restaurantsLeft: number;
+  onSwipe: (restaurant: Restaurant, direction: SwipeDirection) => void;
+};
+
+function SwipeDeckContent({
+  current,
+  next,
+  restaurantsLeft,
+  onSwipe,
+}: SwipeDeckContentProps) {
+  const handleSwipeComplete = (direction: SwipeDirection) => {
+    onSwipe(current, direction);
+  };
+
+  const {
+    handlers,
+    getTransform,
+    getTransition,
+    getOpacity,
+    getNextOpacity,
+    getNextTransition,
+    swipe,
+    isAnimating,
+  } = useSwipeGesture(handleSwipeComplete);
+
+  return (
     <div className="flex flex-col flex-1 items-center gap-6 px-5 pt-6 pb-8">
       {/* Header */}
       <div className="flex w-full items-center justify-between">
@@ -35,20 +75,47 @@ export default function SwipeDeck({
           className="text-xs tracking-wide"
           style={{ color: "var(--fg-muted)" }}
         >
-          {restaurants.length} left
+          {restaurantsLeft} left
         </span>
       </div>
 
       {/* Card stack */}
-      <div className="relative w-full h-[620px]">
+      <div className="relative w-full h-155">
         {/* Next card */}
         {next && (
-          <div className="absolute inset-0 z-0 pointer-events-none">
-            <RestaurantCard restaurant={next} />
-          </div>
+          <>
+            <div
+              className="absolute inset-0 z-0 overflow-hidden rounded-3xl pointer-events-none"
+              style={{ background: "var(--bg-card)" }}
+            />
+
+            <div
+              className="absolute inset-0 z-10 overflow-hidden rounded-3xl pointer-events-none"
+              style={{
+                opacity: getNextOpacity(),
+                transition: getNextTransition(),
+                willChange: "opacity",
+              }}
+            >
+              <RestaurantCard restaurant={next} />
+            </div>
+          </>
         )}
+
         {/* Current card */}
-        <div className="relative w-full h-full z-10">
+        <div
+          className="relative w-full h-full z-10 cursor-grab touch-none select-none active:cursor-grabbing"
+          style={{
+            opacity: getOpacity(),
+            transform: getTransform(),
+            transition: getTransition(),
+            willChange: "transform, opacity",
+          }}
+          onPointerDown={handlers.onPointerDown}
+          onPointerMove={handlers.onPointerMove}
+          onPointerUp={handlers.onPointerUp}
+          onPointerCancel={handlers.onPointerCancel}
+        >
           <RestaurantCard restaurant={current} />
         </div>
       </div>
@@ -57,7 +124,8 @@ export default function SwipeDeck({
       <div className="flex items-center justify-between w-full">
         {/* Dislike */}
         <button
-          onClick={() => onSwipe(current, "left")}
+          onClick={() => swipe("left")}
+          disabled={isAnimating}
           className="w-16 h-16 cursor-pointer rounded-full flex items-center justify-center text-xl transition-transform duration-150 hover:scale-110 active:scale-95"
           style={{
             background: "var(--bg-card)",
@@ -70,7 +138,8 @@ export default function SwipeDeck({
 
         {/* Like */}
         <button
-          onClick={() => onSwipe(current, "right")}
+          onClick={() => swipe("right")}
+          disabled={isAnimating}
           className="w-16 h-16 cursor-pointer rounded-full flex items-center justify-center text-xl transition-transform duration-150 hover:scale-110 active:scale-95"
           style={{
             background: "var(--bg-card)",
