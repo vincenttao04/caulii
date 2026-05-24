@@ -6,7 +6,7 @@ const EXIT_DURATION_MS = 380;
 const SNAP_DURATION_MS = 320;
 const MAX_ROTATION = 7;
 const MAX_DRAG_DISTANCE = 200;
-const FADE_DURATION_MS = 120;
+const FADE_DURATION_MS = 200;
 
 export type SwipeState = {
   x: number;

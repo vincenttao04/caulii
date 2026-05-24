@@ -83,16 +83,23 @@ function SwipeDeckContent({
       <div className="relative w-full h-155">
         {/* Next card */}
         {next && (
-          <div
-            className="absolute inset-0 z-0 overflow-hidden rounded-3xl pointer-events-none"
-            style={{
-              opacity: getNextOpacity(),
-              transition: getNextTransition(),
-              willChange: "opacity",
-            }}
-          >
-            <RestaurantCard restaurant={next} />
-          </div>
+          <>
+            <div
+              className="absolute inset-0 z-0 overflow-hidden rounded-3xl pointer-events-none"
+              style={{ background: "var(--bg-card)" }}
+            />
+
+            <div
+              className="absolute inset-0 z-10 overflow-hidden rounded-3xl pointer-events-none"
+              style={{
+                opacity: getNextOpacity(),
+                transition: getNextTransition(),
+                willChange: "opacity",
+              }}
+            >
+              <RestaurantCard restaurant={next} />
+            </div>
+          </>
         )}
 
         {/* Current card */}
